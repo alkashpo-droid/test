@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Покер на костях</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎲 Покер на костях</h1>
+    
+    <div class="dice-container" id="diceContainer">
+        <!-- Кости появятся здесь -->
+    </div>
+    
+    <button onclick="rollDice()">Бросить кости</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        // JavaScript код игры
+        class PokerDiceGame {
+            constructor() {
+                this.diceCount = 5;
+                this.initDice();
+            }
+
+            initDice() {
+                const container = document.getElementById('diceContainer');
+                container.innerHTML = '';
+                
+                for (let i = 0; i < this.diceCount; i++) {
+                    const dice = document.createElement('div');
+                    dice.className = 'dice';
+                    dice.textContent = '?';
+                    dice.id = `dice${i}`;
+                    container.appendChild(dice);
+                }
+            }
+
+            rollDice() {
+                const diceValues = [];
+                
+                for (let i = 0; i < this.diceCount; i++) {
+                    const value = Math.floor(Math.random() * 6) + 1;
+                    diceValues.push(value);
+                    this.animateDice(i, value);
+                }
+
+                setTimeout(() => {
+                    const combination = this.checkCombination(diceValues);
+                    this.showResult(combination, diceValues);
+                }, 600);
+            }
+
+            animateDice(index, finalValue) {
+                const dice = document.getElementById(`dice${index}`);
+                let rolls = 0;
+                const maxRolls = 10;
+                
+                const rollInterval = setInterval(() => {
+                    const tempValue = Math.floor(Math.random() * 6) + 1;
+                    dice.textContent = tempValue;
+                    rolls++;
+                    
+                    if (rolls >= maxRolls) {
+                        clearInterval(rollInterval);
+                        dice.textContent = finalValue;
+                    }
+                }, 50);
+            }
+
+            checkCombination(dice) {
+                const counts = {};
+                dice.forEach(value => {
+                    counts[value] = (counts[value] || 0) + 1;
+                });
+
+                const values = Object.values(counts).sort((a, b) => b - a);
+
+                if (values[0] === 5) return "🎉 ПОКЕР!";
+                if (values[0] === 4) return "🔥 КАРЕ!";
+                if (values[0] === 3 && values[1] === 2) return "👍 ФУЛЛ-ХАУС!";
+                if (values[0] === 3) return "✅ ТРОЙКА!";
+                if (values[0] === 2 && values[1] === 2) return "👥 ДВЕ ПАРЫ!";
+                if (values[0] === 2) return "👤 ПАРА!";
+                
+                return "📊 СТАРШАЯ КОСТЬ!";
+            }
+
+            showResult(combination, dice) {
+                document.getElementById('result').textContent = 
+                    `${combination} (${dice.join(', ')})`;
+            }
+        }
+
+        const game = new PokerDiceGame();
+
+        function rollDice() {
+            game.rollDice();
+        }
+    </script>
+</body>
+</html>
